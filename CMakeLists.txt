@@ -20,12 +20,12 @@ include(${SWIG_USE_FILE})
 
 # Find Java
 find_package(Java REQUIRED)
+find_package(JNI REQUIRED)
 include(UseJava)
 
 # Include directories
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/lib)
-include_directories(${JAVA_INCLUDE_PATH})
-include_directories(${JAVA_INCLUDE_PATH2})
+include_directories(${JNI_INCLUDE_DIRS})
 
 # SWIG options for Java (only use SWIG-specific flags)
 set(CMAKE_SWIG_FLAGS "-I${CMAKE_CURRENT_SOURCE_DIR}/lib")
@@ -38,6 +38,9 @@ swig_add_library(ctp4java
     OUTPUT_DIR ${CMAKE_CURRENT_SOURCE_DIR}/src/main/java
     SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/swig/ctp.i
 )
+
+# Add include directories for SWIG target
+target_include_directories(ctp4java PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/lib ${JNI_INCLUDE_DIRS})
 
 # Add CTP library directories
 link_directories(${CMAKE_CURRENT_SOURCE_DIR}/lib)
