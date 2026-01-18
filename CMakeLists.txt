@@ -28,7 +28,7 @@ include_directories(${CMAKE_CURRENT_SOURCE_DIR}/lib)
 include_directories(${JNI_INCLUDE_DIRS})
 
 # SWIG options for Java (only use SWIG-specific flags)
-set(CMAKE_SWIG_FLAGS "-I${CMAKE_CURRENT_SOURCE_DIR}/lib")
+set(CMAKE_SWIG_FLAGS "-I${CMAKE_CURRENT_SOURCE_DIR}/lib" "-I${CMAKE_CURRENT_SOURCE_DIR}/swig")
 set_source_files_properties(${CMAKE_CURRENT_SOURCE_DIR}/swig/ctp.i PROPERTIES CPLUSPLUS ON)
 
 # Create SWIG module for Java
