@@ -42,8 +42,12 @@ swig_add_library(ctp4java
 # -package for Java package declaration
 set_property(TARGET ctp4java PROPERTY SWIG_COMPILE_OPTIONS -package;com.yourpkg.ctp)
 
-# Add include directories for SWIG target
-target_include_directories(ctp4java PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/lib ${JNI_INCLUDE_DIRS})
+# Add include directories for SWIG target (swig/ 供生成的 cxx 中 #include "wrapper.h")
+target_include_directories(ctp4java PRIVATE
+    ${CMAKE_CURRENT_SOURCE_DIR}/lib
+    ${CMAKE_CURRENT_SOURCE_DIR}/swig
+    ${JNI_INCLUDE_DIRS}
+)
 
 # Add CTP library directories
 link_directories(${CMAKE_CURRENT_SOURCE_DIR}/lib)
