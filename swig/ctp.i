@@ -1,41 +1,56 @@
 %module(directors="1") ctp
 
-// Suppress problematic warnings and directives
 %{
-#define SWIG_PYTHON_STRICT_BYTE_CHAR
 #include "../lib/ThostFtdcUserApiDataType.h"
 #include "../lib/ThostFtdcUserApiStruct.h"
 #include "../lib/ThostFtdcMdApi.h"
 #include "../lib/ThostFtdcTraderApi.h"
 %}
 
-// Typemaps for char arrays (C-style strings)
-%typemap(jstype) char[ANY] "String"
-%typemap(jtype) char[ANY] "String"
-%typemap(jni) char[ANY] "jstring"
+// Disable default constructors and char array initialization
+%feature("nodefaultctor");
+%feature("nodefaultdtor");
 
-%typemap(in) char[ANY] (char temp[$1_dim0]) {
-  if ($input) {
-    const char *$1_str = jenv->GetStringUTFChars($input, 0);
-    strncpy(temp, $1_str, $1_dim0 - 1);
-    temp[$1_dim0 - 1] = '\0';
-    jenv->ReleaseStringUTFChars($input, $1_str);
-  } else {
-    temp[0] = '\0';
+// Handle char arrays as byte arrays to avoid string literal issues
+%apply char [] { char* };
+
+%typemap(javacode) SWIGTYPE %{
+  public String get_string_field(String fieldName) {
+    // Custom getter for string fields
+    return "";
   }
+  
+  public void set_string_field(String fieldName, String value) {
+    // Custom setter for string fields
+  }
+%}
+
+// Typemap for char[N] - treat as byte array buffer
+%typemap(jstype) char [ANY] "byte[]"
+%typemap(jtype) char [ANY] "byte[]"
+%typemap(jni) char [ANY] "jbyteArray"
+
+%typemap(in) char [ANY] (char temp[$1_dim0]) {
+  jbyte *arr = jenv->GetByteArrayElements($input, 0);
+  memcpy(temp, arr, $1_dim0);
+  jenv->ReleaseByteArrayElements($input, arr, 0);
   $1 = temp;
 }
 
-%typemap(out) char[ANY] {
-  $result = jenv->NewStringUTF($1);
+%typemap(out) char [ANY] {
+  jbyteArray jarr = jenv->NewByteArray($1_dim0);
+  jenv->SetByteArrayRegion(jarr, 0, $1_dim0, (jbyte*)$1);
+  $result = jarr;
 }
 
-%typemap(javaout) char[ANY] {
+%typemap(javaout) char [ANY] {
   return $jnicall;
 }
 
-// Include headers with SWIG directives to handle problematic definitions
-%ignore CThostFtdcReqUserLoginField::OneTimePassword;
+%typemap(javadir) char [ANY] "inout"
+
+// Skip problematic enum/macro definitions that might cause issues
+#define SWIG_SKIP_TYPEDEFS 1
 
 %include "../lib/ThostFtdcUserApiDataType.h"
 %include "../lib/ThostFtdcUserApiStruct.h"
