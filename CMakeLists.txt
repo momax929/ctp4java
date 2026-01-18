@@ -32,12 +32,15 @@ set(CMAKE_SWIG_FLAGS "-I${CMAKE_CURRENT_SOURCE_DIR}/lib" "-I${CMAKE_CURRENT_SOUR
 set_source_files_properties(${CMAKE_CURRENT_SOURCE_DIR}/swig/ctp.i PROPERTIES CPLUSPLUS ON)
 
 # Create SWIG module for Java
+# OUTPUT_DIR: where .java files go (must match Maven package com.yourpkg.ctp)
 swig_add_library(ctp4java
     TYPE SHARED
     LANGUAGE java
-    OUTPUT_DIR ${CMAKE_CURRENT_SOURCE_DIR}/src/main/java
+    OUTPUT_DIR ${CMAKE_CURRENT_SOURCE_DIR}/src/main/java/com/yourpkg/ctp
     SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/swig/ctp.i
 )
+# -package for Java package declaration
+set_property(TARGET ctp4java PROPERTY SWIG_COMPILE_OPTIONS -package;com.yourpkg.ctp)
 
 # Add include directories for SWIG target
 target_include_directories(ctp4java PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/lib ${JNI_INCLUDE_DIRS})
@@ -45,16 +48,19 @@ target_include_directories(ctp4java PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/lib ${JN
 # Add CTP library directories
 link_directories(${CMAKE_CURRENT_SOURCE_DIR}/lib)
 
-# Link CTP libraries
+# Link CTP libraries (lib 目录下为 _se 版本) 与 JNI
 target_link_libraries(ctp4java PRIVATE
-    ${CMAKE_CURRENT_SOURCE_DIR}/lib/thosttraderapi.lib
-    ${CMAKE_CURRENT_SOURCE_DIR}/lib/thostmduserapi.lib
+    ${JNI_LIBRARIES}
+    ${CMAKE_CURRENT_SOURCE_DIR}/lib/thosttraderapi_se.lib
+    ${CMAKE_CURRENT_SOURCE_DIR}/lib/thostmduserapi_se.lib
 )
 
 # Set Windows DLL output directory
+# OUTPUT_NAME "ctp" 与 %module ctp 对应，使 System.loadLibrary("ctp") 可加载 ctp.dll
 set_target_properties(ctp4java PROPERTIES
     PREFIX ""
     SUFFIX ".dll"
+    OUTPUT_NAME "ctp"
     LIBRARY_OUTPUT_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/target/lib"
     RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/target/lib"
 )

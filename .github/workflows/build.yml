@@ -19,18 +19,14 @@ jobs:
       - name: Install SWIG
         run: choco install swig -y
 
-      - name: Create Directories
+      - name: Create build directories
         run: |
-          mkdir -p src/main/java/com/yourpkg/ctp
-          mkdir build
-
-      - name: Run SWIG
-        # -package 定义包名, -outdir 定义Java文件生成位置
-        run: |
-          swig -java -c++ -package com.yourpkg.ctp -outdir src/main/java/com/yourpkg/ctp -o swig/ctp_wrap.cpp swig/ctp.i
+          New-Item -ItemType Directory -Force -Path build | Out-Null
+          New-Item -ItemType Directory -Force -Path target\lib | Out-Null
 
       - name: Configure and Build DLL (CMake)
         run: |
+          $env:Path = "C:\ProgramData\chocolatey\bin;" + $env:Path
           cd build
           cmake ..
           cmake --build . --config Release
