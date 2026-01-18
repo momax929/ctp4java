@@ -1,6 +1,10 @@
 cmake_minimum_required(VERSION 3.10)
 project(ctp4java)
 
+# Set modern CMake policies for SWIG
+cmake_policy(SET CMP0078 NEW)
+cmake_policy(SET CMP0086 NEW)
+
 set(CMAKE_CXX_STANDARD 11)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
@@ -23,8 +27,8 @@ include_directories(${CMAKE_CURRENT_SOURCE_DIR}/lib)
 include_directories(${JAVA_INCLUDE_PATH})
 include_directories(${JAVA_INCLUDE_PATH2})
 
-# SWIG options for Java
-set(CMAKE_SWIG_FLAGS "-Wall -I${CMAKE_CURRENT_SOURCE_DIR}/lib")
+# SWIG options for Java (only use SWIG-specific flags)
+set(CMAKE_SWIG_FLAGS "-I${CMAKE_CURRENT_SOURCE_DIR}/lib")
 set_source_files_properties(${CMAKE_CURRENT_SOURCE_DIR}/swig/ctp.i PROPERTIES CPLUSPLUS ON)
 
 # Create SWIG module for Java
